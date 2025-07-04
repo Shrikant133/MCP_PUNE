@@ -1,0 +1,77 @@
+# Improved CrewAI + MCP tool chaining for flood-prone Pune analysis
+
+from crewai import Agent, Task, Crew, LLM
+from crewai_tools import MCPServerAdapter
+from mcp import StdioServerParameters
+
+# Initialize NVIDIA LLM with higher token limit for deeper chain-of-thought
+llm = LLM(
+    model="nvidia/llama-3.1-nemotron-ultra-253b-v1",
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key="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",
+    max_tokens=4096  # ensure longer, detailed reasoning
+)
+
+# MCP Server for geospatial processing
+server_params = StdioServerParameters(
+    command="uv",
+    args=["--directory", "C:/Users/DELL/Desktop/DASHBOARD/weather", "run", "weather.py"]
+)
+
+with MCPServerAdapter(server_params) as tools:
+    print(f"✅ Available MCP Tools: {[tool.name for tool in tools]}")
+
+    # Explicitly test tool availability and invocation
+    for tool in tools:
+        print(f"🔍 Testing {tool.name} invocation...")
+        try:
+            test_result = tool("ping")
+            print(f"✅ {tool.name} test output: {test_result}")
+        except Exception as e:
+            print(f"⚠️ {tool.name} test failed: {e}")
+
+    # Create the agent with the toolset
+    agent = Agent(
+        role="Flood Risk Geospatial Analyst",
+        goal="Identify flood-prone areas in Pune using geospatial processing and generate a layered visualization map.",
+        backstory="A geospatial AI agent capable of analyzing flood risks using elevation, proximity to rivers, rainfall, and historical flood data for accurate flood risk mapping.",
+        tools=tools,
+        verbose=True,
+        llm=llm,
+    )
+
+    # Decompose into clear multi-tool tasks:
+    task_1 = Task(
+        description="Use elevation analysis tools to identify low-lying areas in Pune prone to water accumulation.",
+        expected_output="A list of low-lying areas in Pune based on elevation data.",
+        agent=agent,
+    )
+
+    task_2 = Task(
+        description="Use proximity analysis tools to identify areas close to rivers and water bodies in Pune.",
+        expected_output="A list of areas in Pune near rivers and water bodies with flood risk.",
+        agent=agent,
+    )
+
+    task_3 = Task(
+        description="Use rainfall analysis tools to overlay recent rainfall patterns on Pune to identify potential flood zones.",
+        expected_output="Layer showing rainfall hotspots intersecting with low-lying areas and proximity to rivers.",
+        agent=agent,
+    )
+
+    task_4 = Task(
+        description="Combine the outputs of elevation, proximity, and rainfall analysis to generate a layered flood-prone area map of Pune.",
+        expected_output="Final layered flood-prone map of Pune with Chain-of-Thought explaining each layer.",
+        agent=agent,
+    )
+
+    # Create crew to execute tasks sequentially to ensure all tools are used
+    crew = Crew(
+        agents=[agent],
+        tasks=[task_1, task_2, task_3, task_4],
+        verbose=True,
+    )
+
+    print("\n🤖 Processing flood-prone area analysis for Pune with full tool invocation...")
+    result = crew.kickoff()
+    print(f"\n✅ Final Result:\n{result}")

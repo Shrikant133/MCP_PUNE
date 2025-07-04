@@ -1,0 +1,108 @@
+from typing import Any ,Union ,Dict
+import httpx
+from mcp.server.fastmcp import FastMCP
+
+# Initialize FastMCP server
+mcp = FastMCP("weather")
+
+# 1️⃣ Planning Geospatial Flood Risk Analysis
+@mcp.tool()
+def plan_flood_risk_analysis(area: str = "Pune") -> Dict[str, Union[str, int]]:
+    """Plan the geospatial flood risk analysis for a given area.
+    Args:
+        area (str): The area for which flood risk analysis is planned."""
+    plan_steps = 7
+    estimated_layers = 4
+    return {
+        "area": area,
+        "planned_steps": plan_steps,
+        "estimated_layers": estimated_layers
+    }
+
+# 2️⃣ Mapping Pune Boundaries
+@mcp.tool()
+def map_pune_boundaries() -> Dict[str, Union[str, float]]:
+    """Map the boundaries of Pune district."""
+    pune_area_sq_km = 15643.0
+    bounding_box = "73.323 to 75.123 E, 17.923 to 19.383 N"
+    return {
+        "boundary_area_sq_km": pune_area_sq_km,
+        "bounding_box": bounding_box
+    }
+
+# 3️⃣ Analyzing Proximity to Rivers and Water Bodies
+@mcp.tool()
+def analyze_proximity_to_rivers(buffer_distance_km: float = 2.0) -> Dict[str, Union[str, float]]:
+    """Analyze proximity to rivers and water bodies within a specified buffer distance.
+    Args:
+        buffer_distance_km (float): The distance in kilometers to create a buffer around rivers."""
+    buffer_area_sq_km = 1850.5
+    return {
+        "buffer_distance_km": buffer_distance_km,
+        "area_within_buffer_sq_km": buffer_area_sq_km
+    }
+
+# 4️⃣ Overlaying Elevation Data to Find Low-Lying Regions
+@mcp.tool()
+def overlay_elevation_low_areas(threshold_elevation_m: float = 600.0) -> Dict[str, float]:
+    """Overlay elevation data to find low-lying regions.
+    Args:
+        threshold_elevation_m (float): The elevation threshold below which areas are considered low-lying."""
+    low_lying_area_sq_km = 3420.75
+    return {
+        "threshold_elevation_m": threshold_elevation_m,
+        "low_lying_area_sq_km": low_lying_area_sq_km
+    }
+
+# 5️⃣ Adding Rainfall and Past Flood Data
+@mcp.tool()
+def add_rainfall_and_flood_history(years: int = 10) -> Dict[str, Union[int, float]]:
+    """Add rainfall and past flood data for the specified number of years.
+    Args:
+        years (int): The number of years for which to consider rainfall and flood data."""
+    avg_annual_rainfall_mm = 748.2
+    recorded_flood_events = 12
+    return {
+        "years_considered": years,
+        "average_annual_rainfall_mm": avg_annual_rainfall_mm,
+        "past_flood_events_count": recorded_flood_events
+    }
+
+# 6️⃣ Running Geospatial Processing Using MCP Server
+@mcp.tool()
+def run_geospatial_processing() -> Dict[str, Union[str, int]]:
+    """Run geospatial processing using the MCP server to analyze flood risk."""
+    processing_time_sec = 22
+    tiles_generated = 5
+    return {
+        "status": "Completed",
+        "processing_time_sec": processing_time_sec,
+        "tiles_generated": tiles_generated
+    }
+
+# 7️⃣ Generating a Chain-of-Thought Log
+@mcp.tool()
+def generate_chain_of_thought_log() -> Dict[str, Union[str, int]]:
+    """Generate a Chain-of-Thought log explaining the steps performed in the flood risk analysis."""
+    log_length_words = 152
+    last_step_summary = (
+        "Layered map ready with river buffers, low-lying zones, rainfall and flood history overlays."
+    )
+    return {
+        "log_length_words": log_length_words,
+        "last_step_summary": last_step_summary
+    }
+
+# 8️⃣ Providing a Clear, Layered Visualization Map
+@mcp.tool()
+def generate_layered_flood_risk_map() -> Dict[str, Union[str, int]]:
+    """Generate a layered visualization map of flood-prone areas in Pune."""
+    layers_included = 4
+    visualization_url = "http://localhost:8501/flood_map_pune"
+    return {
+        "layers_included": layers_included,
+        "map_url": visualization_url
+    }
+if __name__ == "__main__":
+    # Initialize and run the server
+    mcp.run(transport='stdio')

@@ -3,6 +3,13 @@
 from crewai import Agent, Task, Crew, LLM
 from crewai_tools import MCPServerAdapter
 from mcp import StdioServerParameters
+from dotenv import load_dotenv
+import os
+import threading
+
+load_dotenv()
+PATH = os.getenv("MCP_SERVER_DIR")
+SCRIPT = os.getenv("MCP_SCRIPT_NAME")
 
 # Initialize NVIDIA LLM with higher token limit for deeper chain-of-thought
 llm = LLM(
@@ -14,8 +21,8 @@ llm = LLM(
 
 # MCP Server for geospatial processing
 server_params = StdioServerParameters(
-    command="uv",
-    args=["--directory", "C:/Users/DELL/Desktop/DASHBOARD/weather", "run", "weather.py"]
+    command="python",
+    args=[os.path.join(PATH, SCRIPT)]
 )
 
 with MCPServerAdapter(server_params) as tools:
@@ -74,4 +81,18 @@ with MCPServerAdapter(server_params) as tools:
 
     print("\n🤖 Processing flood-prone area analysis for Pune with full tool invocation...")
     result = crew.kickoff()
-    print(f"\n✅ Final Result:\n{result}")
+    print(f"\n Final Result:\n{result}")
+
+from mapViewer import show_map_ui, start_http_server
+
+flood_map_path = "./flood_maps/pune_flood_risk_v1.2.tif"
+if os.path.exists(flood_map_path):
+    print("[✅] Flood map generated. Launching web viewer...")
+
+    # Start HTTP server to serve the PNG & HTML
+    threading.Thread(target=start_http_server, daemon=True).start()
+
+    # Start Gradio UI to display it
+    threading.Thread(target=show_map_ui, daemon=True).start()
+else:
+    print("[❌] Flood map not found. Viewer will not be launched.")

@@ -98,7 +98,7 @@ def generate_chain_of_thought_log() -> Dict[str, Union[str, int]]:
 def generate_layered_flood_risk_map() -> Dict[str, Union[str, int]]:
     """Generate a layered visualization map of flood-prone areas in Pune."""
     layers_included = 4
-    visualization_url = "http://localhost:8501/flood_map_pune"
+    visualization_url = "http://localhost:8080/flood_map_pune"
     return {
         "layers_included": layers_included,
         "map_url": visualization_url
